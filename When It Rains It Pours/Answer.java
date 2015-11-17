@@ -2,6 +2,7 @@ package com.google.challenges;
 
 /**
  * @author Robert Rose
+ * This one ran out of time when running then Google Foobar broke for a couple days. As a result I never solved this one.
  */
 
 public class Answer {
