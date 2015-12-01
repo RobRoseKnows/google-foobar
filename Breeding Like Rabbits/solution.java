@@ -35,20 +35,65 @@ import java.util.HashMap;
  * working with collisions are a possibility in a HashMap.
  * 
  * I chose to implement a Linked List to store all the solved values as it
- * would allow me to iterate through the list in linear time.
+ * would allow me to iterate through the list in linear time. I will also be
+ * able to add all the entries in linear time by using a pointer.
+ * 
+ * I also realized that the LinkedList won't initially be sorted due to the
+ * nature of how the formulas work. Since it would be much easier to be able to
+ * stop the loop once we pass where the function should be, I decided to set up
+ * a sorting system to sort the list prior to iterating through. 
+ * 
+ * I chose to use Merge Sort as the sorting function because it guarantees 
+ * O(nlogn) time. Unlike Merge Sort with arrays, Merge Sort with LinkedLists does
+ * not require O(N) space (which would've been un desirable as it would've been
+ * huge!
  */
 
 public class Answer {   
 	
-	
+	// The functional programming HashMap 
 	private static HashMap<BigInteger, BigInteger> hash = new HashMap<BigInteger, BigInteger>();
 	
-    public static String answer(String str_S) { 
-    	BigInteger solution = BigInteger.valueOf(-1);
-        
+	// The root of a LinkedList containing every R(n) up to n = 10^25
+	private static Node root;
+
+	
+    public static String answer(String str_S) {
+    	// If the LinkedList hasn't been made yet, make it.
+    	if(root == null){
+    		root = new Node(BigInteger.ZERO, BigInteger.ONE);
+    		
+    		// Use a pointer so that adding is O(1) and in a linear loop.
+    		Node pointer = root; 
+    		
+        	long start = System.currentTimeMillis();
+    		// Since str_S will be limited to numbers 10^25 and less, we can build only the numbers up to (10^24)/2 because R of it is 1.03 * 10^25
+    		for(BigInteger i = BigInteger.ONE; i.compareTo(BigInteger.TEN.pow(24).divide(BigInteger.valueOf(2))) <= 0; i.add(BigInteger.ONE)) {
+    			System.out.println("Call: " + i);
+    			pointer.addNode(i, R(i));
+    			pointer = pointer.next; // Move pointer forward
+    			if(i.mod(BigInteger.TEN).equals(BigInteger.ZERO))
+    				System.out.println(i + " at " + (System.currentTimeMillis() - start));
+    		}
+    		System.out.println("Done building LL");
+    	}
+    	
+    	String answer = "None"; // Default to "None"
+    	BigInteger searchFor = new BigInteger(str_S);
+    	
+    	Node on = root;
+    	while(on.next != null) {
+    		// Check to see if we're on the right one. 
+    		if(searchFor.equals(on.val)) {
+    			answer = "" + on.i;
+    			break;
+    		}
+    		
+    		on = on.next;
+    	}
     	
     	
-    	return solution.toString();
+    	return answer;
     } 
     
     public static BigInteger R(BigInteger x) {
@@ -110,32 +155,49 @@ public class Answer {
     }
     
     public static void main(String args[]) {
-    	for(int i = 0; i < 1000; i++) {
-    		System.out.println(R(BigInteger.valueOf(i)));
-    	}
-    	
+
+    	/*
     	long start = System.currentTimeMillis();
     	BigInteger sol = R(BigInteger.TEN.pow(25));
     	long end = System.currentTimeMillis();
     	System.out.println(sol + " in " + (end-start) + "ms");
+    	*/
+    	System.out.println("100: " + answer("100"));
+    	System.out.println("7: " + answer("7"));
     }
     
-    class Node {
-    	BigInteger val;
-    	BigInteger n;
-    	Node next = null;
+    public static class Node implements Comparable<Object> {
+    	private BigInteger val;
+    	private BigInteger i;
+    	private Node next = null;
     	
-    	public Node(BigInteger number, BigInteger value) {
+    	/**
+    	 * Constructor
+    	 * @param index The X value for R(X)
+    	 * @param value R(X)
+    	 */
+    	public Node(BigInteger index, BigInteger value) {
+    		//System.out.println("i: " + index + " v: " + value);
     		val = value;
-    		n = number;
+    		i = index;
     	}
     	
-    	void addNodeToTail(BigInteger number, BigInteger value) {
-    		Node end = new Node(number, value);
-    		Node node = this;
-    		while(node.next != null)
-    			node = node.next;
-    		node.next = end;
+    	/**
+    	 * This function adds a new Node to the current Node.
+    	 * @param index The X value for R(X) 
+    	 * @param value R(X)
+    	 */
+    	public void addNode(BigInteger index, BigInteger value) {
+    		Node end = new Node(index, value);
+    		this.next = end;
     	}
+
+		/**
+		 * All that's necessary is to call the compareTo method on the value
+		 * since that's what we're comparing.
+		 */
+		public int compareTo(Object node) {
+			return val.compareTo(((Node) node).val);
+		}
     }
 }
