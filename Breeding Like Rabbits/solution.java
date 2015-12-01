@@ -60,7 +60,7 @@ public class Answer {
     	
     	if(searchFor.equals(rabbits)) { // rabbits == number of rabbits we want
     		return checkSpot;
-    	} else if(min.equals(max)){ // There is nowhere left to search
+    	} else if(distance.equals(BigInteger.ONE)){ // There is nowhere left to search
     		return BigInteger.valueOf(-1);
     	} else if(rabbits.compareTo(searchFor) > 0) { // too many rabbits (r > sF)
     		return binarySearch(searchFor, min, checkSpot);
@@ -139,16 +139,10 @@ public class Answer {
     	}
     }
     
+    /*
     public static void main(String args[]) {
-
-    	/*
-    	long start = System.currentTimeMillis();
-    	BigInteger sol = R(BigInteger.TEN.pow(25));
-    	long end = System.currentTimeMillis();
-    	System.out.println(sol + " in " + (end-start) + "ms");
-    	*/
 
     	System.out.println("100: " + answer("100"));
     	System.out.println("7: " + answer("7"));
-    }
+    }*/
 }
