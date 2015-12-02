@@ -34,6 +34,16 @@ import java.util.HashMap;
  * I then realized that I didn't have to build the entire set of numbers! I just
  * needed to build the ones that I needed and I can do that by implementing
  * a modified binary sort.
+ * 
+ * The Binary sort worked but I forgot that the question asked for the LAST time
+ * the number of rabbits are equal to a certain amount. I think I can solve
+ * this by making binary search search by N and then searching for the odd
+ * and even X's separately and then returning the max between them.
+ * 
+ * The easiest way to do that is convert binary search from recursive to
+ * iterative and run through the checks twice.
+ * 
+ * It worked!
  */
 
 public class Answer {   
@@ -44,7 +54,7 @@ public class Answer {
 	
     public static String answer(String str_S) {
     	BigInteger searchFor = new BigInteger(str_S);
-    	BigInteger location = binarySearch(searchFor, BigInteger.ZERO, BigInteger.TEN.pow(25));
+    	BigInteger location = binarySearch(searchFor);
     	if(location.equals(BigInteger.valueOf(-1))) {
     		return "None";
     	} else {
@@ -52,23 +62,47 @@ public class Answer {
     	}
     } 
     
-    public static BigInteger binarySearch(BigInteger searchFor, BigInteger min, BigInteger max) {    	
-    	BigInteger distance = max.subtract(min);
-    	BigInteger checkSpot = min.add(distance.divide(BigInteger.valueOf(2)));
+    public static BigInteger binarySearch(BigInteger searchFor) {    	
     	
-    	BigInteger rabbits = R(checkSpot);
+    	BigInteger max = BigInteger.TEN.pow(25);
+    	BigInteger min = BigInteger.ZERO;
     	
-    	if(searchFor.equals(rabbits)) { // rabbits == number of rabbits we want
-    		return checkSpot;
-    	} else if(distance.equals(BigInteger.ONE)){ // There is nowhere left to search
-    		return BigInteger.valueOf(-1);
-    	} else if(rabbits.compareTo(searchFor) > 0) { // too many rabbits (r > sF)
-    		return binarySearch(searchFor, min, checkSpot);
-    	} else if(rabbits.compareTo(searchFor) < 0) { // too few rabbits (r < sF)
-    		return binarySearch(searchFor, checkSpot, max);
+    	BigInteger evenFound = BigInteger.valueOf(-1);
+    	// Check the evens
+    	while(max.compareTo(min) >= 0) {
+    		BigInteger mid = min.add(max.subtract(min).divide(BigInteger.valueOf(2)));
+    		BigInteger rabbits = R(mid.multiply(BigInteger.valueOf(2)));
+    		
+    		if(rabbits.equals(searchFor)) {
+    			evenFound = mid.multiply(BigInteger.valueOf(2));
+    			break;
+    		} else if(rabbits.compareTo(searchFor) > 0) {
+    			max = mid.subtract(BigInteger.ONE);
+    		} else if(rabbits.compareTo(searchFor) < 0) {
+    			min = mid.add(BigInteger.ONE);
+    		}
     	}
     	
-    	return BigInteger.valueOf(-1);
+    	max = BigInteger.TEN.pow(25);
+    	min = BigInteger.ZERO;
+    	
+    	BigInteger oddFound = BigInteger.valueOf(-1);
+    	// Check the odds
+    	while(max.compareTo(min) >= 0) {
+    		BigInteger mid = min.add(max.subtract(min).divide(BigInteger.valueOf(2)));
+    		BigInteger rabbits = R(mid.multiply(BigInteger.valueOf(2)).add(BigInteger.ONE));
+    		
+    		if(rabbits.equals(searchFor)) {
+    			oddFound = mid.multiply(BigInteger.valueOf(2)).add(BigInteger.ONE);
+    			break;
+    		} else if(rabbits.compareTo(searchFor) > 0) {
+    			max = mid.subtract(BigInteger.ONE);
+    		} else if(rabbits.compareTo(searchFor) < 0) {
+    			min = mid.add(BigInteger.ONE);
+    		}
+    	}
+    			
+    	return evenFound.max(oddFound);
     }
     
     /**
@@ -142,7 +176,8 @@ public class Answer {
     /*
     public static void main(String args[]) {
 
-    	System.out.println("100: " + answer("100"));
-    	System.out.println("7: " + answer("7"));
+    	//System.out.println("100: " + answer("100"));
+    	System.out.println("1111: " + answer("1111"));
+    	System.out.println("3: " + answer("3"));
     }*/
 }
